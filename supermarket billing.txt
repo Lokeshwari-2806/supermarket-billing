@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Supermarket Billing System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #e3f2fd; /* Soft blue background */
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #f0f4c3; /* Light yellow-green */
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        .invoice {
+            margin-top: 20px;
+            background: #bbdefb; /* Light blue */
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: #1976d2;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Supermarket Billing System</h2>
+
+    <h3>Add Item to Cart</h3>
+    <input type="text" id="productName" placeholder="Product Name" />
+    <input type="number" id="price" placeholder="Price" step="0.01" />
+    <input type="number" id="quantity" placeholder="Quantity" />
+    <button onclick="addItem()">Add Item</button>
+
+    <h3>Cart</h3>
+    <table id="cartTable">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h3>Discount</h3>
+    <input type="number" id="discount" placeholder="Discount Amount" step="0.01" />
+    <button onclick="applyDiscount()">Apply Discount</button>
+
+    <div class="invoice">
+        <h3>Invoice</h3>
+        <p id="invoiceContent">No items in cart.</p>
+        <p><b>Total Before Discount: </b>$<span id="totalBeforeDiscount">0.00</span></p>
+        <p><b>Discount: </b>$<span id="totalDiscount">0.00</span></p>
+        <p><b>Final Total: </b>$<span id="finalTotal">0.00</span></p>
+    </div>
+
+    <a href="#" class="back-link">Back to Shop</a>
+</div>
+
+<script>
+    let cart = [];
+    let discount = 0;
+
+    function addItem() {
+        const name = document.getElementById('productName').value;
+        const price = parseFloat(document.getElementById('price').value);
+        const quantity = parseInt(document.getElementById('quantity').value);
+
+        if (name && price > 0 && quantity > 0) {
+            cart.push({ name, price, quantity });
+            updateCartTable();
+            clearInputs();
+        } else {
+            alert("Please enter valid product details.");
+        }
+    }
+
+    function clearInputs() {
+        document.getElementById('productName').value = '';
+        document.getElementById('price').value = '';
+        document.getElementById('quantity').value = '';
+    }
+
+    function updateCartTable() {
+        const tbody = document.querySelector('#cartTable tbody');
+        tbody.innerHTML = '';
+        cart.forEach((item, index) => {
+            const row = `<tr>
+                <td>${item.name}</td>
+                <td>$${item.price.toFixed(2)}</td>
+                <td>${item.quantity}</td>
+                <td><button onclick="removeItem(${index})">Remove</button></td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+        updateInvoice();
+    }
+
+    function removeItem(index) {
+        cart.splice(index, 1);
+        updateCartTable();
+    }
+
+    function applyDiscount() {
+        const disc = parseFloat(document.getElementById('discount').value);
+        if (!isNaN(disc) && disc >= 0) {
+            discount = disc;
+            updateInvoice();
+            alert("Discount applied!");
+        } else {
+            alert("Enter a valid discount amount.");
+        }
+    }
+
+    function updateInvoice() {
+        let invoiceContent = '';
+        let total = 0;
+        cart.forEach((item, index) => {
+            invoiceContent += `${index + 1}. ${item.name} - $${item.price.toFixed(2)} x ${item.quantity}<br>`;
+            total += item.price * item.quantity;
+        });
+
+        const discountedTotal = Math.max(total - discount, 0);
+
+        document.getElementById('invoiceContent').innerHTML = invoiceContent || "No items in cart.";
+        document.getElementById('totalBeforeDiscount').innerText = total.toFixed(2);
+        document.getElementById('totalDiscount').innerText = discount.toFixed(2);
+        document.getElementById('finalTotal').innerText = discountedTotal.toFixed(2);
+    }
+</script>
+
+</body>
+</html>
